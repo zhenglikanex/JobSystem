@@ -1,12 +1,12 @@
 #include "job_system.hpp"
 
 #include <cassert>
-#include <iostream>
 #include <random>
 
 JobSystem::JobSystem()
 	: start_(false)
 	, worker_count_(0)
+	, random_engine_(static_cast<uint32_t>(std::chrono::system_clock::now().time_since_epoch().count()))
 {
 }
 
@@ -85,6 +85,10 @@ Job* JobSystem::CreateJob(const JobFunction& function) const
 
 	return nullptr;
 }
+
+//Job* JobSystem::CreateJob(const JobFunction& function, const void* data)
+//{
+//}
 
 Job* JobSystem::CreateJobAsChild(Job* parent, const JobFunction& function) const
 {

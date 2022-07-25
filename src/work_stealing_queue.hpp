@@ -1,11 +1,8 @@
 #pragma once
 
 #include <atomic>
-#include <cassert>
 
-class Job;
-
-template<size_t N>
+template<class T,size_t N>
 class WorkStealingQueue
 {
 public:
@@ -19,17 +16,17 @@ public:
 	{
 	}
 
-	bool IsEmpty() const { return top_ == bottom_; }
+	//可能不准,但是无影响
+	bool IsEmpty() const { return top_ >= bottom_; }
 
-	void Push(Job* job)
+	void Push(T job)
 	{
-		//assert(bottom_ - top_ <= 4096);
 		auto bottom = bottom_.load(std::memory_order_acquire);
 		jobs_[bottom++ & kMask] = job;
 		bottom_.store(bottom,std::memory_order_release);
 	}
 
-	Job* Pop()
+	T Pop()
 	{
 		auto bottom = bottom_.fetch_sub(1, std::memory_order_acquire);
 		auto top = top_.load(std::memory_order_acquire);
@@ -65,7 +62,7 @@ public:
 		return job;
 	}
 
-	Job* Steal()
+	T Steal()
 	{
 		auto top = top_.load(std::memory_order_acquire);
 		auto bottom = bottom_.load(std::memory_order_acquire);
@@ -88,5 +85,5 @@ public:
 private:
 	std::atomic_uint32_t top_;
 	std::atomic_uint32_t bottom_;
-	Job* jobs_[N];
+	T jobs_[N];
 };
