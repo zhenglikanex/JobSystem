@@ -2,36 +2,15 @@
 
 #include <functional>
 #include <atomic>
-#include <limits>
-#include <type_traits>
-
-namespace job_base
-{
-	constexpr  uint32_t Align(uint32_t size, uint32_t alignment)
-	{
-		return (size + alignment - 1) & ~((alignment)-1);
-	}
-
-}
 
 struct Job;
-using JobFunction = void(*)(Job*, const void*);
+using JobFunction = std::function<void(Job*)>;
 
 struct Job
 {
-	static constexpr uint32_t kJobMemSize = 64;
-	static constexpr uint32_t kDataCapacity = kJobMemSize -
-		job_base::Align(sizeof(JobFunction) + sizeof(Job*) + sizeof(std::atomic_int32_t),
-			sizeof(void*));
-
-	JobFunction function;	// 8		0
-	Job* parent;			// 8		8
-	std::atomic_int32_t unfinished_jobs;	// 4 16
-	union 
-	{
-		void* data;
-		char padding[kDataCapacity];
-	};
+	JobFunction function;
+	Job* parent;
+	std::atomic_int32_t unfinished_jobs;
 };
 
 template<class T,class S>

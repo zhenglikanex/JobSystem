@@ -83,7 +83,7 @@ public:
 		return job;
 	}
 private:
-	std::atomic_uint32_t top_;
-	std::atomic_uint32_t bottom_;
+	std::atomic_int32_t top_;
+	std::atomic_int32_t bottom_;
 	T jobs_[N];
 };
